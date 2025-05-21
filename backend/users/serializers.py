@@ -1,13 +1,15 @@
-from rest_framework import serializers
-from django.core.files.base import ContentFile
-from .models import User
-import re
 import base64
+import re
 import uuid
-from PIL import Image
 from io import BytesIO
+
+from django.core.files.base import ContentFile
+from PIL import Image
+from rest_framework import serializers
+
 from recipes.minified import RecipeMinifiedSerializer
-from .models import User, Subscription
+
+from .models import Subscription, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -47,7 +49,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "username", "first_name", "last_name", "password")
+        fields = (
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "password",
+        )
 
     def validate_username(self, value):
         if not re.match(USERNAME_REGEX, value):
@@ -82,7 +91,9 @@ class AvatarSerializer(serializers.Serializer):
             image = Image.open(BytesIO(decoded_file))
             image.verify()
         except Exception:
-            raise serializers.ValidationError("Не удалось декодировать изображение")
+            raise serializers.ValidationError(
+                "Не удалось декодировать изображение"
+            )
         return value
 
     def save(self, **kwargs):
@@ -146,7 +157,9 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
         qs = obj.recipes.all()
         if recipes_limit is not None and recipes_limit.isdigit():
             qs = qs[: int(recipes_limit)]
-        return RecipeMinifiedSerializer(qs, many=True, context=self.context).data
+        return RecipeMinifiedSerializer(
+            qs, many=True, context=self.context
+        ).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()

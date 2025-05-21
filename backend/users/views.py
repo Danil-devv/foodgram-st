@@ -1,15 +1,17 @@
-from rest_framework import mixins, viewsets
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, mixins, pagination, permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework import generics, permissions, pagination
-from .models import User
-from .serializers import UserSerializer, UserCreateSerializer
-from .serializers import AvatarSerializer, SetPasswordSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
-from .serializers import UserWithRecipesSerializer
-from django.shortcuts import get_object_or_404
-from .models import Subscription
+
+from .models import Subscription, User
+from .serializers import (
+    AvatarSerializer,
+    SetPasswordSerializer,
+    UserCreateSerializer,
+    UserSerializer,
+    UserWithRecipesSerializer,
+)
 
 
 class UserViewSet(
@@ -33,7 +35,9 @@ class UserViewSet(
         url_path="me",
     )
     def me(self, request):
-        serializer = self.get_serializer(request.user, context={"request": request})
+        serializer = self.get_serializer(
+            request.user, context={"request": request}
+        )
         return Response(serializer.data)
 
     @action(
@@ -95,7 +99,9 @@ class UserViewSet(
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             Subscription.objects.create(user=user, author=author)
-            serializer = UserWithRecipesSerializer(author, context={"request": request})
+            serializer = UserWithRecipesSerializer(
+                author, context={"request": request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == "DELETE":

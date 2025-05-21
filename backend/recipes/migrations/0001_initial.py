@@ -10,38 +10,78 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('ingredients', '0001_initial'),
+        ("ingredients", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='IngredientInRecipe',
+            name="IngredientInRecipe",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.PositiveIntegerField()),
-                ('ingredient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ingredients.ingredient')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("amount", models.PositiveIntegerField()),
+                (
+                    "ingredient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ingredients.ingredient",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Recipe',
+            name="Recipe",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-                ('image', models.ImageField(upload_to='recipes/images/')),
-                ('text', models.TextField()),
-                ('cooking_time', models.PositiveIntegerField()),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipes', to=settings.AUTH_USER_MODEL)),
-                ('ingredients', models.ManyToManyField(related_name='recipes', through='recipes.IngredientInRecipe', to='ingredients.ingredient')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
+                ("image", models.ImageField(upload_to="recipes/images/")),
+                ("text", models.TextField()),
+                ("cooking_time", models.PositiveIntegerField()),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="recipes",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "ingredients",
+                    models.ManyToManyField(
+                        related_name="recipes",
+                        through="recipes.IngredientInRecipe",
+                        to="ingredients.ingredient",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='ingredientinrecipe',
-            name='recipe',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ingredient_amounts', to='recipes.recipe'),
+            model_name="ingredientinrecipe",
+            name="recipe",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ingredient_amounts",
+                to="recipes.recipe",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='ingredientinrecipe',
-            unique_together={('recipe', 'ingredient')},
+            name="ingredientinrecipe",
+            unique_together={("recipe", "ingredient")},
         ),
     ]
