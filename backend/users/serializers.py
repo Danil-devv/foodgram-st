@@ -85,7 +85,6 @@ class AvatarSerializer(serializers.Serializer):
             raise serializers.ValidationError("Некорректный формат картинки")
         try:
             format, imgstr = value.split(";base64,")
-            ext = format.split("/")[-1]
             decoded_file = base64.b64decode(imgstr)
 
             image = Image.open(BytesIO(decoded_file))

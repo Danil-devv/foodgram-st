@@ -62,7 +62,8 @@ class Command(BaseCommand):
             if Recipe.objects.filter(author=author, name=name).exists():
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Recipe '{name}' from {author_email} already exists, skipping"
+                        f"Recipe '{name}' from"
+                        f" {author_email} already exists, skipping"
                     )
                 )
                 skipped += 1
@@ -100,7 +101,8 @@ class Command(BaseCommand):
                 if not ingredient:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Ingredient with id={ingredient_id} not found, skipping"
+                            f"Ingredient with id={ingredient_id}"
+                            f" not found, skipping"
                         )
                     )
                     continue
@@ -118,7 +120,8 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"User for cart with cart_email {cart_email} not found"
+                            f"User for cart with"
+                            f" cart_email {cart_email} not found"
                         )
                     )
 

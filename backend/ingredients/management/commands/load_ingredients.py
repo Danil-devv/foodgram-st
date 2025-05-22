@@ -14,7 +14,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--file",
             type=str,
-            help="Path to ingredients.json (by default ../data/ingredients.json)",
+            help="Path to ingredients.json "
+                 "(by default ../data/ingredients.json)",
         )
 
     def handle(self, *args, **options):

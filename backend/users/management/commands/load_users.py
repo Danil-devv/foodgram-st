@@ -25,7 +25,8 @@ class Command(BaseCommand):
             "--media-dir",
             type=str,
             default=os.path.join(settings.BASE_DIR, "..", "data"),
-            help="Base dir for avatar files (relative to json file, by default ../data)",
+            help="Base dir for avatar files"
+                 " (relative to json file, by default ../data)",
         )
 
     def handle(self, *args, **options):
@@ -72,7 +73,8 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Avatar file not found for user {email}: {avatar_full_path}"
+                            f"Avatar file not found"
+                            f" for user {email}: {avatar_full_path}"
                         )
                     )
 
