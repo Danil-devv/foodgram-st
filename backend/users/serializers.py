@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 from PIL import Image
 from rest_framework import serializers
 
-from recipes.minified import RecipeMinifiedSerializer
+from recipes.minified_serializer import RecipeMinifiedSerializer
 
 from .models import Subscription, User
 

@@ -23,10 +23,14 @@ services:
       - DJANGO_SUPERUSER_FIRST_NAME=Admin
       - DJANGO_SUPERUSER_LAST_NAME=Admin
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
              python manage.py collectstatic --noinput &&
+             python manage.py load_ingredients --file=/app/data/ingredients.json &&\
+             python manage.py load_users --file=/app/data/users.json --media-dir=/app/data &&
+             python manage.py load_recipes_full --file=/app/data/recipes_full.json --media-dir=/app/data &&
+             python manage.py load_subscriptions --file=/app/data/subscriptions.json &&
              echo 'from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username=\"admin\").exists() or User.objects.create_superuser(username=\"admin\", email=\"admin@example.com\", password=\"admin\", first_name=\"admin\", last_name=\"Admin\")' | python manage.py shell &&
-             python manage.py load_ingredients --file=/app/data/ingredients.json &&
              gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"
 
   frontend:

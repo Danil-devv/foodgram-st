@@ -5,11 +5,14 @@ from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
-from .minified import RecipeMinifiedSerializer
+from .minified_serializer import RecipeMinifiedSerializer
 from .models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 from .permissions import IsAuthorOrReadOnly
 from .serializers import RecipeCreateSerializer, RecipeListSerializer

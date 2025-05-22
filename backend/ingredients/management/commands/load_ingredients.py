@@ -8,7 +8,7 @@ from ingredients.models import Ingredient
 
 
 class Command(BaseCommand):
-    help = "Downloads ingredients from data/ingredients.json"
+    help = "Load ingredients from JSON file"
 
     def add_arguments(self, parser):
         parser.add_argument(

@@ -1,0 +1,194 @@
+[
+  {
+    "author_email": "vasya@example.com",
+    "name": "Борщ",
+    "image": "images/recipes/borsch.jpg",
+    "text": "Варить овощи, добавить свеклу, заправить сметаной.",
+    "cooking_time": 60,
+    "ingredients": [
+      {
+        "id": 1,
+        "amount": 300
+      },
+      {
+        "id": 2,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [
+      "petya@example.com",
+      "masha@example.com"
+    ],
+    "favorited_by": [
+      "masha@example.com"
+    ]
+  },
+  {
+    "author_email": "petya@example.com",
+    "name": "Пельмени",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "petya@example.com",
+    "name": "Пельмени2",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "petya@example.com",
+    "name": "Пельмени3",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "petya@example.com",
+    "name": "Пельмени4",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "petya@example.com",
+    "name": "Пельмени5",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "masha@example.com",
+    "name": "Пельмени6",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "petya@example.com",
+    "name": "Пельмени7",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  },
+  {
+    "author_email": "masha@example.com",
+    "name": "Пельмени8",
+    "image": "images/recipes/pelmeni.jpg",
+    "text": "Смешать фарш, завернуть в тесто, отварить.",
+    "cooking_time": 30,
+    "ingredients": [
+      {
+        "id": 2,
+        "amount": 200
+      },
+      {
+        "id": 3,
+        "amount": 100
+      }
+    ],
+    "shopping_cart": [],
+    "favorited_by": [
+      "vasya@example.com"
+    ]
+  }
+]

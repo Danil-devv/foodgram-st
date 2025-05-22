@@ -17,9 +17,13 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient, through="IngredientInRecipe", related_name="recipes"
     )
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ["-created"]
 
 
 class IngredientInRecipe(models.Model):

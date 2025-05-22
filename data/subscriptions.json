@@ -1,0 +1,14 @@
+[
+  {
+    "user_email": "vasya@example.com",
+    "author_email": "petya@example.com"
+  },
+  {
+    "user_email": "vasya@example.com",
+    "author_email": "masha@example.com"
+  },
+  {
+    "user_email": "masha@example.com",
+    "author_email": "petya@example.com"
+  }
+]
