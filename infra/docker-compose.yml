@@ -1,5 +1,17 @@
 version: '3.9'
 services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=foodgram
+      - POSTGRES_USER=foodgram_user
+      - POSTGRES_PASSWORD=foodgram_password
+    ports:
+      - "5432:5432"
+
   backend:
     build:
       context: ../backend
@@ -10,18 +22,14 @@ services:
       - ../data/:/app/data/
     environment:
       - DEBUG=False
-      - SECRET_KEY=your-secret-key-here
+      - SECRET_KEY=some-secret-key
       - ALLOWED_HOSTS=localhost,127.0.0.1
+      - USE_POSTGRES=1
       - POSTGRES_DB=foodgram
       - POSTGRES_USER=foodgram_user
       - POSTGRES_PASSWORD=foodgram_password
       - DB_HOST=db
       - DB_PORT=5432
-      - DJANGO_SUPERUSER_EMAIL=admin@example.com
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_PASSWORD=admin
-      - DJANGO_SUPERUSER_FIRST_NAME=Admin
-      - DJANGO_SUPERUSER_LAST_NAME=Admin
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
@@ -32,6 +40,8 @@ services:
              python manage.py load_subscriptions --file=/app/data/subscriptions.json &&
              echo 'from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username=\"admin\").exists() or User.objects.create_superuser(username=\"admin\", email=\"admin@example.com\", password=\"admin\", first_name=\"admin\", last_name=\"Admin\")' | python manage.py shell &&
              gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -57,6 +67,7 @@ services:
       - frontend
 
 volumes:
+  pg_data:
   frontend_build:
   backend_static:
   media_value:
