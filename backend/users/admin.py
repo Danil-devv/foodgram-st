@@ -117,7 +117,8 @@ class UserAdmin(DjangoUserAdmin):
         if user.avatar:
             return mark_safe(
                 f'<img src="{user.avatar.url}" '
-                f'style="height:64px;width:64px;object-fit:cover;border-radius:4px;" />'
+                f'style="height:64px;width:64px;object-fit:cover;'
+                f'border-radius:4px;" />'
             )
         return "—"
 
