@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "recipes",
     "djoser",
     "users",
-    "core",
+    "api",
 ]
 
 MEDIA_URL = "/media/"
@@ -129,7 +129,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
-    "DEFAULT_PAGINATION_CLASS": "core.pagination.CustomLimitPagination",
+    "DEFAULT_PAGINATION_CLASS": "api.pagination.LimitPagination",
     "PAGE_SIZE": 6,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend"
