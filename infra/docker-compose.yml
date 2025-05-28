@@ -13,6 +13,7 @@ services:
       - "5432:5432"
 
   backend:
+    env_file: .env
     build:
       context: ../backend
       dockerfile: Dockerfile
@@ -21,9 +22,8 @@ services:
       - media_value:/app/media/
       - ../data/:/app/data/
     environment:
-      - DEBUG=False
-      - SECRET_KEY=some-secret-key
       - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DJANGO_DEBUG=0
       - USE_POSTGRES=1
       - POSTGRES_DB=foodgram
       - POSTGRES_USER=foodgram_user
