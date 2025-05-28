@@ -2,6 +2,7 @@ from .models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 
 from django.contrib import admin
 from django.db.models import Count
+from django.utils.safestring import mark_safe
 
 from .models import Ingredient
 
@@ -50,12 +51,41 @@ class RecipeAdmin(admin.ModelAdmin):
         "author__first_name",
         "author__last_name",
     ]
-    list_display = ("id", "name", "author", "favorites_count")
+    list_display = (
+        "id",
+        "name",
+        "cooking_time",
+        "author",
+        "favorites_count",
+        "ingredients_html",
+        "image_tag",
+    )
+    readonly_fields = ("image_tag",)
 
-    def favorites_count(self, obj):
-        return obj.in_favorites.count()
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(fav_cnt=Count("favorites"))
 
-    favorites_count.short_description = "In Favorites"
+    @admin.display(description="В избранном", ordering="fav_cnt")
+    def favorites_count(self, recipe):
+        return recipe.fav_cnt
+
+    @admin.display(description="Ингредиенты")
+    def ingredients_html(self, recipe):
+        items = [
+            f"{ia.ingredient.name} — {ia.amount}"
+            for ia in recipe.ingredient_amounts.select_related("ingredient")
+        ]
+        return mark_safe("<br>".join(items) or "—")
+
+    @admin.display(description="Картинка")
+    def image_tag(self, recipe):
+        if recipe.image:
+            return mark_safe(
+                f'<img src="{recipe.image.url}" '
+                f'style="height:80px;object-fit:cover;border-radius:4px;" />'
+            )
+        return "—"
 
 
 admin.site.register(IngredientInRecipe)

@@ -1,29 +1,53 @@
+from django.core.validators import MinValueValidator
+
+from .models import Ingredient
+from users.serializers import UserSerializer
+from .models import IngredientInRecipe, Recipe
+
+import base64
+import uuid
+
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 
-from recipes.models import Ingredient
-from users.serializers import UserSerializer
 
-from .models import IngredientInRecipe, Recipe
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith("data:image"):
+            header, imgstr = data.split(";base64,", 1)
+            ext = header.split("/")[-1]
+            decoded = base64.b64decode(imgstr)
+            data = ContentFile(decoded, name=f"{uuid.uuid4()}.{ext}")
+        return super().to_internal_value(data)
+
 
 
 class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(
-        source="ingredient.measurement_unit"
-    )
+    measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
 
     class Meta:
         model = IngredientInRecipe
         fields = ("id", "name", "measurement_unit", "amount")
+        read_only_fields = fields
+
+
+class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), source="ingredient")
+    amount = serializers.IntegerField(validators=[MinValueValidator(1)])
+
+    class Meta:
+        model = IngredientInRecipe
+        fields = ("id", "amount")
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientInRecipeReadSerializer(source="ingredient_amounts", many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -38,143 +62,65 @@ class RecipeListSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
+        read_only_fields = fields
 
-    def get_ingredients(self, obj):
-        qs = obj.ingredient_amounts.select_related("ingredient")
-        return IngredientInRecipeReadSerializer(qs, many=True).data
+    def get_is_favorited(self, recipe):
+        user = self.context["request"].user
+        return user.is_authenticated and recipe.favorites.filter(user=user).exists()
 
-    def get_is_favorited(self, obj):
-        user = self.context.get("request").user
-        if user.is_anonymous:
-            return False
-        return obj.in_favorites.filter(user=user).exists()
-
-    def get_is_in_shopping_cart(self, obj):
-        user = self.context.get("request").user
-        if user.is_anonymous:
-            return False
-        return obj.in_shopping_carts.filter(user=user).exists()
-
-    def get_image(self, obj):
-        request = self.context.get("request")
-        if obj.image and hasattr(obj.image, "url"):
-            url = obj.image.url
-            if request:
-                return request.build_absolute_uri(url)
-            return url
-        return None
-
-
-class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(), source="ingredient"
-    )
-    amount = serializers.IntegerField()
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = ("id", "amount")
+    def get_is_in_shopping_cart(self, recipe):
+        user = self.context["request"].user
+        return user.is_authenticated and recipe.shopping_carts.filter(user=user).exists()
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    ingredients = IngredientInRecipeWriteSerializer(many=True)
-    image = serializers.CharField()
+    ingredients = IngredientInRecipeWriteSerializer(
+        many=True, required=True, allow_empty=False
+    )
+    image = Base64ImageField()
+    cooking_time = serializers.IntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
         model = Recipe
         fields = ("id", "ingredients", "image", "name", "text", "cooking_time")
 
-    def validate(self, data):
-        return data
-
-    def validate_ingredients(self, value):
-        if not value or len(value) == 0:
-            raise serializers.ValidationError(
-                "Нужно указать хотя бы один ингредиент"
-            )
-        ids = [item["ingredient"].id for item in value]
+    def validate_ingredients(self, ingredients_list):
+        if not ingredients_list:
+            raise serializers.ValidationError("Нужно указать хотя бы один ингредиент")
+        ids = [item["ingredient"].id for item in ingredients_list]
         if len(ids) != len(set(ids)):
-            raise serializers.ValidationError(
-                "Ингредиенты не должны повторяться"
-            )
-        for item in value:
-            if item["amount"] < 1:
-                raise serializers.ValidationError(
-                    "Количество ингредиента должно быть не меньше 1"
-                )
-        return value
+            raise serializers.ValidationError("Ингредиенты не должны повторяться")
+        return ingredients_list
 
-    def validate_cooking_time(self, value):
-        if value < 1:
-            raise serializers.ValidationError(
-                "Время приготовления должно быть не меньше 1 минуты"
-            )
-        return value
+    def _save_ingredients(self, recipe, ingredients_data):
+        IngredientInRecipe.objects.bulk_create(
+            [
+                IngredientInRecipe(
+                    recipe=recipe,
+                    ingredient=item["ingredient"],
+                    amount=item["amount"],
+                )
+                for item in ingredients_data
+            ]
+        )
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop("ingredients")
-        image_data = validated_data.pop("image")
-        recipe = Recipe.objects.create(**validated_data)
-
-        import base64
-        import uuid
-
-        from django.core.files.base import ContentFile
-
-        if image_data.startswith("data:image"):
-            format, imgstr = image_data.split(";base64,")
-            ext = format.split("/")[-1]
-            decoded_file = base64.b64decode(imgstr)
-            file_name = f"{uuid.uuid4()}.{ext}"
-            recipe.image.save(file_name, ContentFile(decoded_file), save=True)
-
-        for ing in ingredients_data:
-            IngredientInRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ing["ingredient"],
-                amount=ing["amount"],
-            )
+        recipe = super().create(validated_data)
+        self._save_ingredients(recipe, ingredients_data)
         return recipe
 
     def update(self, instance, validated_data):
+        # при PATCH запросе DRF не требует обязательных полей
+        # поэтому проверяем здесь
         if "ingredients" not in self.initial_data:
-            raise serializers.ValidationError(
-                {"ingredients": ["Это поле обязательно."]}
-            )
-
+            raise serializers.ValidationError({"ingredients": ["Это поле обязательно."]})
         ingredients_data = validated_data.pop("ingredients", None)
-        image_data = validated_data.pop("image", None)
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        if image_data:
-            import base64
-            import uuid
-
-            from django.core.files.base import ContentFile
-
-            if image_data.startswith("data:image"):
-                format, imgstr = image_data.split(";base64,")
-                ext = format.split("/")[-1]
-                decoded_file = base64.b64decode(imgstr)
-                file_name = f"{uuid.uuid4()}.{ext}"
-                instance.image.save(
-                    file_name, ContentFile(decoded_file), save=True
-                )
-
-        instance.save()
-
+        recipe = super().update(instance, validated_data)
         if ingredients_data is not None:
-            instance.ingredient_amounts.all().delete()
-            for ing in ingredients_data:
-                IngredientInRecipe.objects.create(
-                    recipe=instance,
-                    ingredient=ing["ingredient"],
-                    amount=ing["amount"],
-                )
-
-        return instance
+            recipe.ingredient_amounts.all().delete()
+            self._save_ingredients(recipe, ingredients_data)
+        return recipe
 
     def to_representation(self, instance):
         return RecipeListSerializer(instance, context=self.context).data

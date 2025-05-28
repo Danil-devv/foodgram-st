@@ -9,7 +9,7 @@ router.register("recipes", RecipeViewSet, basename="recipes")
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "s/<str:short_id>/",
+        "s/<str:recipe_id>/",
         recipe_short_link_redirect,
         name="recipe-short-link",
     ),

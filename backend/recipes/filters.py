@@ -10,17 +10,17 @@ class RecipeFilter(django_filters.FilterSet):
     is_favorited = django_filters.NumberFilter(method="filter_is_favorited")
     author = django_filters.NumberFilter(field_name="author__id")
 
-    def filter_is_in_shopping_cart(self, queryset, name, value):
+    def filter_is_in_shopping_cart(self, recipes, name, value):
         user = getattr(self.request, "user", None)
         if value == 1 and user and user.is_authenticated:
-            return queryset.filter(in_shopping_carts__user=user)
-        return queryset
+            return recipes.filter(shoppingcarts__user=user)
+        return recipes
 
-    def filter_is_favorited(self, queryset, name, value):
+    def filter_is_favorited(self, recipes, name, value):
         user = getattr(self.request, "user", None)
         if value == 1 and user and user.is_authenticated:
-            return queryset.filter(in_favorites__user=user)
-        return queryset
+            return recipes.filter(favorites__user=user)
+        return recipes
 
     class Meta:
         model = Recipe

@@ -23,7 +23,7 @@ services:
       - ../data/:/app/data/
     environment:
       - ALLOWED_HOSTS=localhost,127.0.0.1
-      - DJANGO_DEBUG=0
+      - DJANGO_DEBUG=1
       - USE_POSTGRES=1
       - POSTGRES_DB=foodgram
       - POSTGRES_USER=foodgram_user
