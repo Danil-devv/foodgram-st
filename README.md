@@ -12,6 +12,10 @@ Foodgram — сервис для публикации и поиска рецеп
 
 1. Склонируйте репозиторий
 
+```shell
+git clone git@github.com:Danil-devv/foodgram-st.git
+```
+
 2. Создайте и активируйте виртуальное окружение
 
 ```shell
@@ -30,7 +34,6 @@ pip install -r requirements.txt
 4. Проведите миграции
 
 ```shell
-python manage.py makemigrations
 python manage.py migrate
 ```
 
@@ -46,7 +49,7 @@ python manage.py load_ingredients
 python manage.py runserver
 ```
 
-Бэкенд будет доступен по адресу http://localhost:8000/
+Бэкенд будет доступен по адресу [http://localhost:8000/](http://localhost:8000/)
 
 ## Локальный запуск всего проекта
 1. Перейдите в папку infra
@@ -63,14 +66,17 @@ docker compose up
 
 В результате будет поднятно 3 контейнера: Django-приложение, nginx и PostgreSQL.
 
-Приложение будет доступно по адресу `http://localhost/`.
-
 Также база данных автоматически заполнится демонстрационными данными, будут созданы
 пользователи, рецепты, у некоторых пользователей будет заполнена корзина и т.д.
 
 Данные от тестовых аккаунтов можно найти в `data/users.json`.
 
-Данные для подключения к админке:
-* URL: `http://localhost/admin/`
-* email: `admin@example.com`
-* password: `admin`
+Доступы к приложению:
+- Веб-приложение: [http://localhost/](http://localhost/)
+- API Документация: [http://localhost/api/docs/](http://localhost/api/docs/)
+- Панель администратора: [http://localhost/admin/](http://localhost/admin/)
+- API Endpoints: [http://localhost/api/](http://localhost/api/)
+
+Автор: Даниил Семенов
+
+Email: s3menovd4nil@yandex.ru
