@@ -1,10 +1,7 @@
+import django_filters
 from django_filters.rest_framework import CharFilter, FilterSet
 
-from recipes.models import Ingredient
-
-import django_filters
-
-from recipes.models import Recipe
+from recipes.models import Ingredient, Recipe
 
 
 class IngredientFilter(FilterSet):

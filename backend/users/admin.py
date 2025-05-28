@@ -88,7 +88,9 @@ class UserAdmin(DjangoUserAdmin):
             .get_queryset(request)
             .annotate(
                 recipe_count=Count("recipes", distinct=True),
-                subscription_count=Count("subscriptions_from_me", distinct=True),
+                subscription_count=Count(
+                    "subscriptions_from_me", distinct=True
+                ),
                 follower_count=Count("subscriptions_to_me", distinct=True),
             )
         )

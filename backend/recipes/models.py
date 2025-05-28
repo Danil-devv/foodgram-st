@@ -13,8 +13,8 @@ class Ingredient(models.Model):
         verbose_name_plural = "Ингредиенты"
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'measurement_unit'],
-                name='unique_ingredient_measurement_unit'
+                fields=["name", "measurement_unit"],
+                name="unique_ingredient_measurement_unit",
             )
         ]
 
@@ -32,14 +32,13 @@ class Recipe(models.Model):
     image = models.ImageField("Изображение", upload_to="recipes/images/")
     text = models.TextField("Описание")
     cooking_time = models.PositiveIntegerField(
-        "Время приготовления",
-        validators=[MinValueValidator(1)]
+        "Время приготовления", validators=[MinValueValidator(1)]
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through="IngredientInRecipe",
         related_name="recipes",
-        verbose_name='Ингредиенты',
+        verbose_name="Ингредиенты",
     )
     created = models.DateTimeField("Дата создания", auto_now_add=True)
 
@@ -48,9 +47,9 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ("-created",)
-        verbose_name = 'Рецепт'
-        verbose_name_plural = 'Рецепты'
-        default_related_name = 'recipes'
+        verbose_name = "Рецепт"
+        verbose_name_plural = "Рецепты"
+        default_related_name = "recipes"
 
     @property
     def shopping_carts(self):
@@ -62,14 +61,17 @@ class IngredientInRecipe(models.Model):
         Recipe, on_delete=models.CASCADE, related_name="ingredient_amounts"
     )
     ingredient = models.ForeignKey(
-        Ingredient, on_delete=models.CASCADE, related_name="ingredient_in_recipes"
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name="ingredient_in_recipes",
     )
     amount = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("recipe", "ingredient"), name="unique_recipe_ingredient"
+                fields=("recipe", "ingredient"),
+                name="unique_recipe_ingredient",
             )
         ]
 

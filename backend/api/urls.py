@@ -2,7 +2,8 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import IngredientViewSet
-from .views import SubscriptionListView, UserViewSet, RecipeViewSet
+
+from .views import RecipeViewSet, SubscriptionListView, UserViewSet
 
 router = DefaultRouter()
 router.register("users", UserViewSet, basename="users")

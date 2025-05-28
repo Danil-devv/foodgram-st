@@ -16,7 +16,7 @@ class Command(BaseCommand):
             "--file",
             type=str,
             help="Path to ingredients.json "
-                 "(by default ../data/ingredients.json)",
+            "(by default ../data/ingredients.json)",
         )
 
     def handle(self, *args, **options):
@@ -26,9 +26,12 @@ class Command(BaseCommand):
         """
         file_path = Path()
         try:
-            file_path = Path(options.get("file") or
-                             Path(settings.BASE_DIR).resolve().parent
-                             / "data" / "ingredients.json").resolve()
+            file_path = Path(
+                options.get("file")
+                or Path(settings.BASE_DIR).resolve().parent
+                / "data"
+                / "ingredients.json"
+            ).resolve()
 
             with file_path.open(encoding="utf-8") as fh:
                 items = json.load(fh)
@@ -38,8 +41,9 @@ class Command(BaseCommand):
                 return
 
             names_in_db = set(
-                Ingredient.objects.filter(name__in=[item["name"] for item in items])
-                .values_list("name", flat=True)
+                Ingredient.objects.filter(
+                    name__in=[item["name"] for item in items]
+                ).values_list("name", flat=True)
             )
 
             to_create = [
@@ -49,7 +53,9 @@ class Command(BaseCommand):
             ]
 
             with transaction.atomic():
-                Ingredient.objects.bulk_create(to_create, ignore_conflicts=True)
+                Ingredient.objects.bulk_create(
+                    to_create, ignore_conflicts=True
+                )
 
             self.stdout.write(
                 self.style.SUCCESS(f"Added new ingredients: {len(to_create)}")
@@ -60,6 +66,8 @@ class Command(BaseCommand):
         except json.JSONDecodeError as exc:
             self.stderr.write(self.style.ERROR(f"Invalid JSON: {exc}"))
         except KeyError as exc:
-            self.stderr.write(self.style.ERROR(f"Missing key in JSON items: {exc}"))
+            self.stderr.write(
+                self.style.ERROR(f"Missing key in JSON items: {exc}")
+            )
         except Exception as exc:
             self.stderr.write(self.style.ERROR(f"Unexpected error: {exc}"))

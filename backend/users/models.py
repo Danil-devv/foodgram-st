@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-
 username_validator = RegexValidator(
     regex=r"^[\w.@+-]+\Z",
     message="Введите корректный никнейм: буквы, цифры, символы «@ . + - _»",
@@ -21,7 +20,9 @@ class User(AbstractUser):
     )
     first_name = models.CharField("Имя", max_length=150)
     last_name = models.CharField("Фамилия", max_length=150)
-    avatar = models.ImageField("Аватар", upload_to="users/", blank=True, null=True)
+    avatar = models.ImageField(
+        "Аватар", upload_to="users/", blank=True, null=True
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
