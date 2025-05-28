@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ingredients.models import Ingredient
+from recipes.models import Ingredient
 from users.serializers import UserSerializer
 
 from .models import IngredientInRecipe, Recipe

@@ -1,7 +1,18 @@
 from django.conf import settings
 from django.db import models
 
-from ingredients.models import Ingredient
+
+class Ingredient(models.Model):
+    name = models.CharField("Название", max_length=128)
+    measurement_unit = models.CharField("Единица измерения", max_length=64)
+
+    class Meta:
+        ordering = ("name",)
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.measurement_unit})"
 
 
 class Recipe(models.Model):

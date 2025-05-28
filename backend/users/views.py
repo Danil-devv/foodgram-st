@@ -1,51 +1,32 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import (
-    generics,
-    mixins,
-    pagination,
-    permissions,
-    status,
-    viewsets,
-)
+
+from djoser.views import UserViewSet as DjoserUserViewSet
+from rest_framework import generics, pagination, permissions, serializers, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Subscription, User
-from .serializers import (
-    AvatarSerializer,
-    SetPasswordSerializer,
-    UserCreateSerializer,
-    UserSerializer,
-    UserWithRecipesSerializer,
-)
+from .serializers import AvatarSerializer, UserWithRecipesSerializer
 
 
-class UserViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
-):
+class UserViewSet(DjoserUserViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return UserCreateSerializer
-        return UserSerializer
 
     @action(
-        methods=["get"],
         detail=False,
+        methods=['get'],
         permission_classes=[IsAuthenticated],
-        url_path="me",
+        url_path='me',
+        url_name='me'
     )
-    def me(self, request):
-        serializer = self.get_serializer(
-            request.user, context={"request": request}
-        )
-        return Response(serializer.data)
+    def me(self, request, *args, **kwargs):
+        return super().me(request, *args, **kwargs)
+
+    def get_permissions(self):
+        if self.action in ("list", "retrieve"):
+            return [AllowAny()]
+        return super().get_permissions()
 
     @action(
         methods=["put", "delete"],
@@ -61,28 +42,9 @@ class UserViewSet(
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            avatar_url = user.avatar.url if user.avatar else None
-            if avatar_url:
-                avatar_url = request.build_absolute_uri(avatar_url)
+            avatar_url = request.build_absolute_uri(user.avatar.url) if user.avatar else None
             return Response({"avatar": avatar_url})
-        if request.method == "DELETE":
-            user.avatar.delete(save=True)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(
-        methods=["post"],
-        detail=False,
-        permission_classes=[IsAuthenticated],
-        url_path="set_password",
-    )
-    def set_password(self, request):
-        serializer = SetPasswordSerializer(
-            data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        user = request.user
-        user.set_password(serializer.validated_data["new_password"])
-        user.save()
+        user.avatar.delete(save=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -91,38 +53,26 @@ class UserViewSet(
         permission_classes=[IsAuthenticated],
         url_path="subscribe",
     )
-    def subscribe(self, request, pk=None):
+    def subscribe(self, request, id=None):
         user = request.user
-        author = get_object_or_404(User, pk=pk)
+        author = get_object_or_404(User, id=id)
         if request.method == "POST":
             if user == author:
-                return Response(
-                    {"errors": "Нельзя подписаться на самого себя"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if Subscription.objects.filter(user=user, author=author).exists():
-                return Response(
-                    {"errors": "Вы уже подписаны на этого пользователя"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            Subscription.objects.create(user=user, author=author)
-            serializer = UserWithRecipesSerializer(
-                author, context={"request": request}
+                raise serializers.ValidationError("Нельзя подписаться на самого себя")
+            subscription, created = Subscription.objects.get_or_create(
+                user=user,
+                author=author,
             )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if request.method == "DELETE":
-            sub = Subscription.objects.filter(user=user, author=author).first()
-            if sub is None:
-                return Response(
-                    {"errors": "Вы не подписаны на этого пользователя"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            sub.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if not created:
+                raise serializers.ValidationError("Вы уже подписаны на данного автора")
+            data = UserWithRecipesSerializer(author, context={"request": request}).data
+            return Response(data, status=status.HTTP_201_CREATED)
+        get_object_or_404(Subscription, user=user, author=author).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SubscriptionPagination(pagination.PageNumberPagination):
+    page_size = 6
     page_size_query_param = "limit"
 
 
@@ -132,5 +82,6 @@ class SubscriptionListView(generics.ListAPIView):
     pagination_class = SubscriptionPagination
 
     def get_queryset(self):
-        user = self.request.user
-        return User.objects.filter(subscribers__user=user).distinct()
+        return User.objects.filter(
+            subscriptions_to_me__user=self.request.user
+        ).distinct()
