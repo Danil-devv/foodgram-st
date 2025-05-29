@@ -1,5 +1,4 @@
 import datetime
-import io
 
 from django.db.models import F, Sum
 from django.http import FileResponse
@@ -16,7 +15,6 @@ from rest_framework import (
 )
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    AllowAny,
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )

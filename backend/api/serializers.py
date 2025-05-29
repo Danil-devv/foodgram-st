@@ -3,7 +3,6 @@ import uuid
 from io import BytesIO
 
 from django.core.files.base import ContentFile
-from django.core.validators import MinValueValidator
 from djoser.serializers import (
     SetPasswordSerializer as DjoserSetPasswordSerializer,
 )

@@ -75,7 +75,8 @@ class RecipeAdmin(admin.ModelAdmin):
     @mark_safe
     def ingredients_html(self, recipe):
         items = [
-            f"{ia.ingredient.name} — {ia.amount} {ia.ingredient.measurement_unit}"
+            (f"{ia.ingredient.name} — {ia.amount}"
+             f" {ia.ingredient.measurement_unit}")
             for ia in recipe.ingredient_amounts.select_related("ingredient")
         ]
         return "<br>".join(items)
