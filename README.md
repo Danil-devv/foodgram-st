@@ -19,7 +19,7 @@ git clone git@github.com:Danil-devv/foodgram-st.git
 2. Создайте и активируйте виртуальное окружение
 
 ```shell
-cd backend
+cd foodgram-st-main/backend
 python -m venv venv
 venv\Scripts\activate           # для Windows
 source venv/bin/activate        # для Linux/Mac
@@ -79,4 +79,4 @@ docker compose up
 
 Автор: Даниил Семенов
 
-Email: s3menovd4nil@yandex.ru
+Email: [s3menovd4nil@yandex.ru](mailto:s3menovd4nil@yandex.ru)
