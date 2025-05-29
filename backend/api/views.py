@@ -9,7 +9,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import (
     generics,
-    pagination,
     permissions,
     serializers,
     status,
@@ -33,15 +32,16 @@ from recipes.models import (
 from users.models import Subscription, User
 
 from .filters import IngredientFilter, RecipeFilter
-from .minified_serializer import RecipeMinifiedSerializer
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     AvatarSerializer,
     IngredientSerializer,
-    RecipeCreateSerializer,
+    RecipeCreateWriteSerializer,
+    RecipeMinifiedSerializer,
     RecipeListSerializer,
     UserWithRecipesSerializer,
 )
+from .pagination import LimitPagination
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -64,11 +64,6 @@ class UserViewSet(DjoserUserViewSet):
     )
     def me(self, request, *args, **kwargs):
         return super().me(request, *args, **kwargs)
-
-    def get_permissions(self):
-        if self.action in ("list", "retrieve"):
-            return [AllowAny()]
-        return super().get_permissions()
 
     @action(
         methods=["put", "delete"],
@@ -113,7 +108,7 @@ class UserViewSet(DjoserUserViewSet):
             )
             if not created:
                 raise serializers.ValidationError(
-                    "Вы уже подписаны на данного автора"
+                    f"Вы уже подписаны на автора {author.get_full_name()}"
                 )
             data = UserWithRecipesSerializer(
                 author, context={"request": request}
@@ -123,15 +118,10 @@ class UserViewSet(DjoserUserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SubscriptionPagination(pagination.PageNumberPagination):
-    page_size = 6
-    page_size_query_param = "limit"
-
-
 class SubscriptionListView(generics.ListAPIView):
     serializer_class = UserWithRecipesSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = SubscriptionPagination
+    pagination_class = LimitPagination
 
     def get_queryset(self):
         return User.objects.filter(
@@ -149,17 +139,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return (
             RecipeListSerializer
             if self.action in ["list", "retrieve"]
-            else RecipeCreateSerializer
+            else RecipeCreateWriteSerializer
         )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     @staticmethod
-    def _toggle_entry(model, user, recipe, already_msg):
+    def _toggle_entry(model, user, recipe):
         entry, created = model.objects.get_or_create(user=user, recipe=recipe)
         if not created:
-            raise serializers.ValidationError(already_msg)
+            meta = getattr(model._meta, 'verbose_name', None)
+            raise serializers.ValidationError(
+                f"{meta or 'Объект'} уже добавлен для этого пользователя"
+            )
         return entry
 
     @action(methods=["get"], detail=True, url_path="get-link")
@@ -182,9 +175,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if request.method == "POST":
-            self._toggle_entry(
-                ShoppingCart, user, recipe, "Рецепт уже в списке покупок"
-            )
+            self._toggle_entry(ShoppingCart, user, recipe)
             data = RecipeMinifiedSerializer(
                 recipe, context={"request": request}
             ).data
@@ -232,10 +223,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ],
         ]
 
-        buffer = io.BytesIO("\n".join(lines).encode("utf-8"))
-        buffer.seek(0)
         return FileResponse(
-            buffer, as_attachment=True, filename="shopping_cart.txt"
+            "\n".join(lines), as_attachment=True, filename="shopping_cart.txt"
         )
 
     @action(
@@ -249,9 +238,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if request.method == "POST":
-            self._toggle_entry(
-                Favorite, user, recipe, "Рецепт уже в избранном"
-            )
+            self._toggle_entry(Favorite, user, recipe)
             data = RecipeMinifiedSerializer(
                 recipe, context={"request": request}
             ).data
