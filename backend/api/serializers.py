@@ -47,9 +47,11 @@ class UserSerializer(DjoserUserSerializer):
     def get_is_subscribed(self, user: User) -> bool:
         request = self.context.get("request")
         return (
-                request
-                and not request.user.is_anonymous
-                and Subscription.objects.filter(user=request.user, author=user).exists()
+            request
+            and not request.user.is_anonymous
+            and Subscription.objects.filter(
+                user=request.user, author=user
+            ).exists()
         )
 
 
@@ -162,15 +164,15 @@ class RecipeListSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, recipe):
         user = self.context["request"].user
         return (
-                user.is_authenticated
-                and recipe.favorites.filter(user=user).exists()
+            user.is_authenticated
+            and recipe.favorites.filter(user=user).exists()
         )
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context["request"].user
         return (
-                user.is_authenticated
-                and recipe.shopping_carts.filter(user=user).exists()
+            user.is_authenticated
+            and recipe.shopping_carts.filter(user=user).exists()
         )
 
 
@@ -213,7 +215,8 @@ class RecipeCreateWriteSerializer(serializers.ModelSerializer):
                 recipe=recipe,
                 ingredient=item["ingredient"],
                 amount=item["amount"],
-            ) for item in ingredients_data
+            )
+            for item in ingredients_data
         )
 
     def create(self, validated_data):

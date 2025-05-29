@@ -7,6 +7,7 @@ from django.db import transaction
 
 from recipes.models import Ingredient
 
+
 class Command(BaseCommand):
     help = "Load ingredients from JSON file"
 
@@ -35,10 +36,16 @@ class Command(BaseCommand):
             with file_path.open(encoding="utf-8") as fh:
                 created = Ingredient.objects.bulk_create(
                     [Ingredient(**item) for item in json.load(fh)],
-                    ignore_conflicts=True
+                    ignore_conflicts=True,
                 )
                 self.stdout.write(
-                    self.style.SUCCESS(f"Added new ingredients: {len(created)}.")
+                    self.style.SUCCESS(
+                        f"Added new ingredients: {len(created)}."
+                    )
                 )
         except Exception as exc:
-            self.stderr.write(self.style.ERROR(f"Unexpected error in file {file_path}: {exc}"))
+            self.stderr.write(
+                self.style.ERROR(
+                    f"Unexpected error in file {file_path}: {exc}"
+                )
+            )

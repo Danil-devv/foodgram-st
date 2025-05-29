@@ -10,6 +10,7 @@ from .models import (
     ShoppingCart,
 )
 
+
 class InRecipesFilter(admin.SimpleListFilter):
     LOOKUPS = (("yes", "да"), ("no", "нет"))
     title = "Есть в рецептах"
@@ -25,6 +26,7 @@ class InRecipesFilter(admin.SimpleListFilter):
             return queryset.filter(recipe_count=0)
         return queryset
 
+
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     search_fields = ("name", "measurement_unit")
@@ -39,6 +41,7 @@ class IngredientAdmin(admin.ModelAdmin):
     @admin.display(description="В рецептах", ordering="recipe_count")
     def recipe_count(self, ingredient):
         return ingredient.recipe_count
+
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
@@ -86,6 +89,7 @@ class RecipeAdmin(admin.ModelAdmin):
                 f'style="height:80px;object-fit:cover;border-radius:4px;" />'
             )
         return "—"
+
 
 admin.site.register(IngredientInRecipe)
 admin.site.register(ShoppingCart)

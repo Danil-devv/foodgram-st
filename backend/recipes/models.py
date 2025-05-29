@@ -14,7 +14,7 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["name", "measurement_unit"],
-                name="unique_ingredient_measurement_unit"
+                name="unique_ingredient_measurement_unit",
             )
         ]
 
@@ -34,9 +34,7 @@ class Recipe(models.Model):
         "Время приготовления", validators=[MinValueValidator(1)]
     )
     ingredients = models.ManyToManyField(
-        Ingredient,
-        through="IngredientInRecipe",
-        verbose_name="Ингредиенты"
+        Ingredient, through="IngredientInRecipe", verbose_name="Ингредиенты"
     )
     created = models.DateTimeField("Дата создания", auto_now_add=True)
 
@@ -55,9 +53,7 @@ class IngredientInRecipe(models.Model):
         Recipe, on_delete=models.CASCADE, related_name="ingredient_amounts"
     )
     ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-        related_name="recipe_ingredients"
+        Ingredient, on_delete=models.CASCADE, related_name="recipe_ingredients"
     )
     amount = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 

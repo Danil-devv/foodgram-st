@@ -32,16 +32,16 @@ from recipes.models import (
 from users.models import Subscription, User
 
 from .filters import IngredientFilter, RecipeFilter
+from .pagination import LimitPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     AvatarSerializer,
     IngredientSerializer,
     RecipeCreateWriteSerializer,
-    RecipeMinifiedSerializer,
     RecipeListSerializer,
+    RecipeMinifiedSerializer,
     UserWithRecipesSerializer,
 )
-from .pagination import LimitPagination
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -149,7 +149,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def _toggle_entry(model, user, recipe):
         entry, created = model.objects.get_or_create(user=user, recipe=recipe)
         if not created:
-            meta = getattr(model._meta, 'verbose_name', None)
+            meta = getattr(model._meta, "verbose_name", None)
             raise serializers.ValidationError(
                 f"{meta or 'Объект'} уже добавлен для этого пользователя"
             )

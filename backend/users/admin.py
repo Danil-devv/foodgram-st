@@ -16,13 +16,9 @@ class YesNoFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
-            return queryset.filter(
-                **{f"{self.field_name}__gt": 0}
-            )
+            return queryset.filter(**{f"{self.field_name}__gt": 0})
         if self.value() == "no":
-            return queryset.filter(
-                **{self.field_name: 0}
-            )
+            return queryset.filter(**{self.field_name: 0})
         return queryset
 
 
