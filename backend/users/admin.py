@@ -6,49 +6,42 @@ from django.utils.safestring import mark_safe
 from .models import Subscription, User
 
 
-class HasRecipesFilter(admin.SimpleListFilter):
+class YesNoFilter(admin.SimpleListFilter):
+    lookup_options = (("yes", "да"), ("no", "нет"))
+    field_name = None
+    title = ""
+
+    def lookups(self, request, model_admin):
+        return self.lookup_options
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(
+                **{f"{self.field_name}__gt": 0}
+            )
+        if self.value() == "no":
+            return queryset.filter(
+                **{self.field_name: 0}
+            )
+        return queryset
+
+
+class HasRecipesFilter(YesNoFilter):
     title = "Есть рецепты"
     parameter_name = "has_recipes"
-
-    def lookups(self, request, model_admin):
-        return ("yes", "да"), ("no", "нет")
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.filter(recipe_count__gt=0)
-        if self.value() == "no":
-            return queryset.filter(recipe_count=0)
-        return queryset
+    field_name = "recipe_count"
 
 
-class HasSubscriptionsFilter(admin.SimpleListFilter):
+class HasSubscriptionsFilter(YesNoFilter):
     title = "Есть подписки"
     parameter_name = "has_subs"
-
-    def lookups(self, request, model_admin):
-        return ("yes", "да"), ("no", "нет")
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.filter(subscription_count__gt=0)
-        if self.value() == "no":
-            return queryset.filter(subscription_count=0)
-        return queryset
+    field_name = "subscription_count"
 
 
-class HasSubscribersFilter(admin.SimpleListFilter):
+class HasSubscribersFilter(YesNoFilter):
     title = "Есть подписчики"
     parameter_name = "has_followers"
-
-    def lookups(self, request, model_admin):
-        return ("yes", "да"), ("no", "нет")
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.filter(follower_count__gt=0)
-        if self.value() == "no":
-            return queryset.filter(follower_count=0)
-        return queryset
+    field_name = "follower_count"
 
 
 @admin.register(User)
@@ -113,13 +106,15 @@ class UserAdmin(DjangoUserAdmin):
         return user.follower_count
 
     @admin.display(description="Аватар", boolean=False)
+    @mark_safe
     def avatar_thumb(self, user):
         if user.avatar:
-            return mark_safe(
+            return (
                 f'<img src="{user.avatar.url}" '
                 f'style="height:64px;width:64px;object-fit:cover;'
-                f'border-radius:4px;" />'
+                'border-radius:4px;" />'
             )
+
         return "—"
 
 

@@ -51,10 +51,6 @@ class Recipe(models.Model):
         verbose_name_plural = "Рецепты"
         default_related_name = "recipes"
 
-    @property
-    def shopping_carts(self):
-        return self.shoppingcarts
-
 
 class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
@@ -80,12 +76,10 @@ class UserRecipeBase(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="%(class)ss",
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name="%(class)ss",
     )
 
     def __str__(self):
@@ -102,9 +96,13 @@ class UserRecipeBase(models.Model):
 
 class ShoppingCart(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзина"
         default_related_name = "shopping_carts"
 
 
 class Favorite(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранные"
         default_related_name = "favorites"
