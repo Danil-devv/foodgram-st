@@ -17,6 +17,5 @@ urlpatterns = [
         name="subscriptions",
     ),
     path("", include(router.urls)),
-    path("", include(("recipes.urls", "recipes"), namespace="recipes")),
     path("auth/", include("djoser.urls.authtoken")),
 ]
