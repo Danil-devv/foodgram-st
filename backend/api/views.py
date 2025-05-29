@@ -167,7 +167,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if not Recipe.objects.filter(pk=pk).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         short_link = request.build_absolute_uri(
-            reverse("recipes:recipe-short-link", args=[pk])
+            reverse("recipes:recipe-short-link-redirect", args=[pk])
         )
         return Response({"short-link": short_link})
 

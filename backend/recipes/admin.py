@@ -10,13 +10,13 @@ from .models import (
     ShoppingCart,
 )
 
-
 class InRecipesFilter(admin.SimpleListFilter):
+    LOOKUPS = (("yes", "да"), ("no", "нет"))
     title = "Есть в рецептах"
     parameter_name = "has_recipe"
 
     def lookups(self, request, model_admin):
-        return ("yes", "да"), ("no", "нет")
+        return self.LOOKUPS
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
@@ -25,26 +25,20 @@ class InRecipesFilter(admin.SimpleListFilter):
             return queryset.filter(recipe_count=0)
         return queryset
 
-
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     search_fields = ("name", "measurement_unit")
-
     list_display = ("id", "name", "measurement_unit", "recipe_count")
     readonly_fields = ("recipe_count",)
-
     list_filter = ("measurement_unit", InRecipesFilter)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.annotate(recipe_count=Count("recipes"))
 
+    @admin.display(description="В рецептах", ordering="recipe_count")
     def recipe_count(self, ingredient):
         return ingredient.recipe_count
-
-    recipe_count.short_description = "Находится в рецептах"
-    recipe_count.admin_order_field = "recipe_count"
-
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
@@ -75,22 +69,23 @@ class RecipeAdmin(admin.ModelAdmin):
         return recipe.fav_cnt
 
     @admin.display(description="Ингредиенты")
+    @mark_safe
     def ingredients_html(self, recipe):
         items = [
-            f"{ia.ingredient.name} — {ia.amount}"
+            f"{ia.ingredient.name} — {ia.amount} {ia.ingredient.measurement_unit}"
             for ia in recipe.ingredient_amounts.select_related("ingredient")
         ]
-        return mark_safe("<br>".join(items) or "—")
+        return "<br>".join(items)
 
     @admin.display(description="Картинка")
+    @mark_safe
     def image_tag(self, recipe):
         if recipe.image:
-            return mark_safe(
+            return (
                 f'<img src="{recipe.image.url}" '
                 f'style="height:80px;object-fit:cover;border-radius:4px;" />'
             )
         return "—"
-
 
 admin.site.register(IngredientInRecipe)
 admin.site.register(ShoppingCart)

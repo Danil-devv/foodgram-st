@@ -8,8 +8,8 @@ router = DefaultRouter()
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "s/<str:recipe_id>/",
+        "s/<int:recipe_id>/",
         recipe_short_link_redirect,
-        name="recipe-short-link",
+        name="recipe-short-link-redirect",
     ),
 ]

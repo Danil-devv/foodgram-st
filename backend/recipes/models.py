@@ -14,7 +14,7 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["name", "measurement_unit"],
-                name="unique_ingredient_measurement_unit",
+                name="unique_ingredient_measurement_unit"
             )
         ]
 
@@ -26,7 +26,6 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="recipes",
     )
     name = models.CharField("Название", max_length=256)
     image = models.ImageField("Изображение", upload_to="recipes/images/")
@@ -37,8 +36,7 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through="IngredientInRecipe",
-        related_name="recipes",
-        verbose_name="Ингредиенты",
+        verbose_name="Ингредиенты"
     )
     created = models.DateTimeField("Дата создания", auto_now_add=True)
 
@@ -59,7 +57,7 @@ class IngredientInRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name="ingredient_in_recipes",
+        related_name="recipe_ingredients"
     )
     amount = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
